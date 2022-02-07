@@ -20,7 +20,6 @@ protected:
     std::list<Layer*> hiddenLayers;
     Neuron* biasNeuron;
     Layer* getRandomLayer();
-    void createInitialConnections();
 private:
     int hiddenNeuronCount;
     int inputs;
@@ -32,6 +31,7 @@ public:
     void deserialize(std::string dataIn); // loads the network from a serialized string
     void insertLayer(int index);
     std::vector<float> feedForward(std::vector<float> inputData);
+    void createInitialConnections();
     ~NeuralNetwork();
 };
 #endif

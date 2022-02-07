@@ -29,12 +29,19 @@ void NeuralNetwork::createInitialConnections() {
     NeuronIterator inputEnd = inputLayer->getNeurons()->end();
     NeuronIterator outputEnd = outputLayer->getNeurons()->end();
 
+    // Add connections for input layer
     for (NeuronIterator inputIterator = inputLayer->getNeurons()->begin(); inputIterator != inputEnd; ++inputIterator) {
         for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
             // Assume that there are no connections, because there shouldn't be
             Synapse* connection = new Synapse((*inputIterator).second, (*outputIterator).second);
             (*inputIterator).second->addSynapse(connection); // All weights are 1.0
         }
+    }
+    // Add connections for bias neuron
+    for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
+        // Assume that there are no connections, because there shouldn't be
+        Synapse* connection = new Synapse(biasNeuron, (*outputIterator).second);
+        biasNeuron->addSynapse(connection); // All weights are 1.0
     }
 }
 
