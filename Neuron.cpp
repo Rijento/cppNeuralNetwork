@@ -2,6 +2,14 @@
 #include "Synapse.hpp"
 #include "Layer.hpp"
 #include <math.h>
+#include <regex>
+
+Neuron::Neuron() {
+    id = "PLACEHOLDER";
+    layer = NULL;
+    activationLevel = 0.0;
+    outputLevel = 0.0;
+}
 
 Neuron::Neuron(std::string idIn) {
     id = idIn;
@@ -36,7 +44,7 @@ Neuron* Neuron::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, L
     return clone;
 }
 std::string Neuron::serialize() {
-    std::string serialized = "nur:(" + id + ",syns(";
+    std::string serialized = "nur:(" + id + ",syns:(";
 
     for(SynapseIterator it = synapses.begin(); it != synapses.end(); ++it) {
         serialized += (*it)->serialize();
@@ -45,7 +53,28 @@ std::string Neuron::serialize() {
 
     return serialized + "))";
 }
-void Neuron::deserialize(std::string dataIn) {} //TODO: this
+void Neuron::deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons, Layer* deserializedLayer) {
+    std::regex_token_iterator<std::string::iterator> rend;
+    std::regex nurSplit ("\\((.*),syns:\\((.*)\\)\\)");
+    std::regex synsSplit ("syn:\\(.*?\\)");
+    std::regex_token_iterator<std::string::iterator> nurSpl_it (dataIn.begin(), dataIn.end(), nurSplit, {1,2});
+    std::string idString = *nurSpl_it++;
+    std::string synsString = *nurSpl_it;
+    
+    synapses.clear();
+    id = idString;
+    layer = deserializedLayer;
+
+    deserializedNeurons[idString] = this;
+
+    std::regex_token_iterator<std::string::iterator> synsSpl_it (synsString.begin(), synsString.end(), synsSplit);
+    while (synsSpl_it != rend) {
+        Synapse* synapse = new Synapse();
+        synapse->deserialize(*synsSpl_it++, deserializedNeurons);
+        synapses.insert(synapse);
+    }
+    bool test = false;
+}
 std::unordered_set<Synapse*>* Neuron::getSynapses() {
     return &synapses;
 }

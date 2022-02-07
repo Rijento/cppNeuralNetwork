@@ -12,10 +12,11 @@ private:
     float weight;
     bool enabled;
 public:
+    Synapse();
     Synapse(Neuron* fromIn, Neuron* toIn);
     Synapse(Neuron* fromIn, Neuron* toIn, float weightIn);
     std::string serialize();
-    void deserialize(std::unordered_map<std::string, Neuron*> &deserializedNeurons);
+    void deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons);
     Synapse* clone(std::unordered_map<std::string, Neuron*> &clonedNeurons);
     Neuron* getFrom();
     Neuron* getTo();

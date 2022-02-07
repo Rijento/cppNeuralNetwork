@@ -19,11 +19,12 @@ private:
     float outputLevel;
     float activationFunction(float x); // used in the activate functions
 public:
+    Neuron();
     Neuron(std::string idIn);
     Neuron(std::string idIn, Layer* layerIn);
     Neuron* clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, Layer* clonedLayer); // creates a copy of the neuron
     std::string serialize(); // serializes the neuron to a string
-    void deserialize(std::string dataIn); // loads the neuron from a serialized string
+    void deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons, Layer* deserializedLayer); // loads the neuron from a serialized string
     std::unordered_set<Synapse*>* getSynapses();
     Synapse* getRandomSynapse();
     bool isConnected(Neuron* neuron);

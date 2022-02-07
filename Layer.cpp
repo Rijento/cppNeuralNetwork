@@ -1,5 +1,6 @@
 #include "Layer.hpp"
 #include "Neuron.hpp"
+#include <regex>
 
 Layer::Layer(int depthIn) {
     depth = depthIn;
@@ -24,7 +25,32 @@ std::string Layer::serialize() {
 
     return serialized + "))";
 } 
-void Layer::deserialize(std::string dataIn) {} //TODO: this
+void Layer::deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons) {
+    neurons.clear(); // Remove anything that's already there
+    std::regex_token_iterator<std::string::iterator> rend;
+    std::regex dataSplitter ("lay:\\((-?\\d+),nurs:\\((.*),\\)");
+    std::regex neuronSplitter ("nur:([^)]*\\))*?\\)?\\)");
+    
+    std::regex_token_iterator<std::string::iterator> dataSpl_it (dataIn.begin(), dataIn.end(), dataSplitter, {1,2});
+
+    std::string depthString = *dataSpl_it++;
+    std::string neuronsString = *dataSpl_it;
+
+    std::regex_token_iterator<std::string::iterator> neuronSpl_it(neuronsString.begin(), neuronsString.end(), neuronSplitter);
+
+    std::vector<std::string> serializedNeurons;
+
+    while (neuronSpl_it != rend) {
+        Neuron* neuron = new Neuron();
+        std::string neuronString = *neuronSpl_it++;
+        neuron->deserialize(neuronString, deserializedNeurons, this);
+        neurons[neuron->getId()] = neuron;
+        // serializedNeurons.push_back(*neuronSpl_it++);
+    }
+
+bool test = false;
+
+} //TODO: this
 void Layer::addNeuron(Neuron* neuron) {
     neurons[neuron->getId()] = neuron;
 }
