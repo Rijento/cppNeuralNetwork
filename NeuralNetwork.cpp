@@ -38,7 +38,7 @@ void NeuralNetwork::createInitialConnections() {
     }
 }
 
-NeuralNetwork* NeuralNetwork::clone() { // creates a copy of the network
+NeuralNetwork* NeuralNetwork::clone() { // creates a copy of the network TODO: THIS
     NeuralNetwork* clone = new NeuralNetwork(inputs, outputs);
     std::unordered_map<std::string, Neuron*> clonedNeurons;
 
@@ -57,7 +57,24 @@ NeuralNetwork* NeuralNetwork::clone() { // creates a copy of the network
     return clone;
 }
 
-std::string NeuralNetwork::serialize() {} // serializes the network to a string
+std::string NeuralNetwork::serialize() {
+    std::string serialized = "NN:(" + std::to_string(inputs) + "," + std::to_string(outputs) + "," + std::to_string(hiddenNeuronCount)
+        + ",ilay:(";
+    serialized += inputLayer->serialize();
+    serialized += "),bnur:(" + biasNeuron->serialize();
+    serialized += "),hlays:(";
+
+    for(LayerIterator it = hiddenLayers.begin(); it != hiddenLayers.end(); ++it) {
+        serialized += (*it)->serialize();
+        serialized += ",";
+    }
+
+    serialized += "),olay:(" + outputLayer->serialize();
+    serialized += "))";
+
+    return serialized;
+
+}
 void NeuralNetwork::deserialize(std::string dataIn) { // loads the network from a serialized string
 
 }

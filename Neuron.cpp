@@ -35,7 +35,7 @@ Neuron* Neuron::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, L
 
     return clone;
 }
-std::string Neuron::serialize() {//TODO: this
+std::string Neuron::serialize() {
     std::string serialized = "nur:(" + id + ",syns(";
 
     for(SynapseIterator it = synapses.begin(); it != synapses.end(); ++it) {
@@ -43,7 +43,7 @@ std::string Neuron::serialize() {//TODO: this
         serialized += ",";
     }
 
-    return serialized + "))"
+    return serialized + "))";
 }
 void Neuron::deserialize(std::string dataIn) {} //TODO: this
 std::unordered_set<Synapse*>* Neuron::getSynapses() {

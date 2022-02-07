@@ -14,7 +14,15 @@ Layer* Layer::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons) {
     clone->neurons = layerNeuronClones;
     return clone;
 }
-std::string Layer::serialize() {} //TODO: this
+std::string Layer::serialize() {
+    std::string serialzied = "lay:(" + std::to_string(depth) + ",nurs:(";
+    
+    for (NeuronIterator it = neurons.begin(); it != neurons.end(); ++it) {
+        serialzied += it->second->serialize();
+    }
+
+    return serialzied + "))";
+} 
 void Layer::deserialize(std::string dataIn) {} //TODO: this
 void Layer::addNeuron(Neuron* neuron) {
     neurons[neuron->getId()] = neuron;
