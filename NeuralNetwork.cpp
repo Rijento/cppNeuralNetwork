@@ -2,6 +2,7 @@
 #include "Neuron.hpp"
 #include "Layer.hpp"
 #include "Synapse.hpp"
+#include <regex>
 
 NeuralNetwork::NeuralNetwork(int inputsIn, int outputsIn){
     inputLayer = new Layer(0);
@@ -29,19 +30,60 @@ void NeuralNetwork::createInitialConnections() {
     NeuronIterator inputEnd = inputLayer->getNeurons()->end();
     NeuronIterator outputEnd = outputLayer->getNeurons()->end();
 
+
     // Add connections for input layer
-    for (NeuronIterator inputIterator = inputLayer->getNeurons()->begin(); inputIterator != inputEnd; ++inputIterator) {
+    if (hiddenLayers.size() > 0) {
+        Layer* firstHiddenLayer = *hiddenLayers.begin();
+        Layer* lastHiddenLayer = *hiddenLayers.rbegin();
+        // Add connections between input layer and first hidden layer
+        for (NeuronIterator inputIterator = inputLayer->getNeurons()->begin(); inputIterator != inputEnd; ++inputIterator) { 
+            for(NeuronIterator it = firstHiddenLayer->getNeurons()->begin(); it != firstHiddenLayer->getNeurons()->end(); ++it) {
+                Synapse* connection = new Synapse((*inputIterator).second, (*it).second);
+                (*inputIterator).second->addSynapse(connection);
+            }
+        }
+
+        // connect hidden layers together
+        LayerIterator it = hiddenLayers.begin();
+        while (*it != *hiddenLayers.rbegin()) {
+            LayerIterator curr = it++;
+            for (NeuronIterator firstIt = (*curr)->getNeurons()->begin(); firstIt != (*curr)->getNeurons()->end(); ++firstIt) {
+                for (NeuronIterator secondIt = (*it)->getNeurons()->begin(); secondIt != (*it)->getNeurons()->end(); ++secondIt) {
+                    Synapse* connection = new Synapse((*firstIt).second, (*secondIt).second);
+                    (*firstIt).second->addSynapse(connection);
+                }
+            }
+        }
+
+        // connect last hidden layer to output layer
+        for (NeuronIterator lastIterator = lastHiddenLayer->getNeurons()->begin(); lastIterator != lastHiddenLayer->getNeurons()->end(); ++lastIterator) {
+            for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
+                // Assume that there are no connections, because there shouldn't be
+                Synapse* connection = new Synapse((*lastIterator).second, (*outputIterator).second);
+                (*lastIterator).second->addSynapse(connection); // All weights are 1.0
+            }
+        }
+
+        // Add connections for bias neuron
         for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
             // Assume that there are no connections, because there shouldn't be
-            Synapse* connection = new Synapse((*inputIterator).second, (*outputIterator).second);
-            (*inputIterator).second->addSynapse(connection); // All weights are 1.0
+            Synapse* connection = new Synapse(biasNeuron, (*outputIterator).second);
+            biasNeuron->addSynapse(connection); // All weights are 1.0
         }
-    }
-    // Add connections for bias neuron
-    for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
-        // Assume that there are no connections, because there shouldn't be
-        Synapse* connection = new Synapse(biasNeuron, (*outputIterator).second);
-        biasNeuron->addSynapse(connection); // All weights are 1.0
+    } else {
+        for (NeuronIterator inputIterator = inputLayer->getNeurons()->begin(); inputIterator != inputEnd; ++inputIterator) {
+            for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
+                // Assume that there are no connections, because there shouldn't be
+                Synapse* connection = new Synapse((*inputIterator).second, (*outputIterator).second);
+                (*inputIterator).second->addSynapse(connection); // All weights are 1.0
+            }
+        }
+        // Add connections for bias neuron
+        for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
+            // Assume that there are no connections, because there shouldn't be
+            Synapse* connection = new Synapse(biasNeuron, (*outputIterator).second);
+            biasNeuron->addSynapse(connection); // All weights are 1.0
+        }
     }
 }
 
@@ -71,7 +113,8 @@ std::string NeuralNetwork::serialize() {
     serialized += "),bnur:(" + biasNeuron->serialize();
     serialized += "),hlays:(";
 
-    for(LayerIterator it = hiddenLayers.begin(); it != hiddenLayers.end(); ++it) {
+    // Serialize in reverse order to ensure that everything loads properly when deserializing.
+    for(RLayerIterator it = hiddenLayers.rbegin(); it != hiddenLayers.rend(); ++it) {
         serialized += (*it)->serialize();
         serialized += ",";
     }
@@ -83,10 +126,45 @@ std::string NeuralNetwork::serialize() {
 
 }
 void NeuralNetwork::deserialize(std::string dataIn) { // loads the network from a serialized string
+    std::unordered_map<std::string, Neuron*> deserializedNeurons;
+    std::regex_token_iterator<std::string::iterator> rend;
 
+    std::vector<std::string> testing;
+
+    std::regex split ("(\\d*),(\\d*),(\\d*),ilay:\\((.*)\\),bnur:\\((.*)\\),hlays:\\((.*)\\),olay:\\((.*)\\)\\)");
+    int submatches[] = {1, 2, 3, 4, 5, 6, 7};
+    std::regex_token_iterator<std::string::iterator> spl_it (dataIn.begin(), dataIn.end(), split, submatches);
+
+    std::string inputsString = *spl_it++;
+    std::string outputsString = *spl_it++;
+    std::string hNursString = *spl_it++;
+    std::string blayString = *spl_it++;
+    std::string ilayString = *spl_it++;
+    std::string hlaysString = *spl_it++;
+    std::string olayString = *spl_it++;
+
+    inputs = std::stoi(inputsString);
+    outputs = std::stoi(outputsString);
+    hiddenNeuronCount = std::stoi(hNursString);
+
+    // Deserialize output layer
+    outputLayer->deserialize(olayString, deserializedNeurons);
+
+    // Desearialize hidden layers
+
+    bool test = false;
 }
 
 Layer* NeuralNetwork::getRandomLayer() {
+    int randint = rand() % hiddenLayers.size()+1;
+
+    if (randint == 0) {
+        return inputLayer;
+    } else {
+        LayerIterator it = hiddenLayers.begin();
+        std::advance(it, randint-1);
+        return *it;
+    }
 
 }
 
@@ -115,7 +193,7 @@ std::vector<float> NeuralNetwork::feedForward(std::vector<float> inputData) {
         }
     }
 
-    std::vector<float> outputData;
+    std::vector<float> outputData = *(new std::vector<float>(outputs,0.0));
 
     for (int i = 0; i < outputs; i++) { // Activate output layer and record outputs
         std::string id = "o/" + std::to_string(i);
