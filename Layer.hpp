@@ -13,6 +13,7 @@ private:
     std::unordered_map<std::string, Neuron*> neurons;
     int depth;
 public:
+    Layer();
     Layer(int depthIn);
     Layer* clone(std::unordered_map<std::string, Neuron*> &clonedNeurons); // creates a copy of the layer
     std::string serialize(); // serializes the layer to a string

@@ -2,6 +2,8 @@
 #include "Neuron.hpp"
 #include <regex>
 
+Layer::Layer() {}
+
 Layer::Layer(int depthIn) {
     depth = depthIn;
 }
@@ -35,6 +37,8 @@ void Layer::deserialize(std::string dataIn, std::unordered_map<std::string, Neur
 
     std::string depthString = *dataSpl_it++;
     std::string neuronsString = *dataSpl_it;
+
+    depth = std::stoi(depthString);
 
     std::regex_token_iterator<std::string::iterator> neuronSpl_it(neuronsString.begin(), neuronsString.end(), neuronSplitter);
 

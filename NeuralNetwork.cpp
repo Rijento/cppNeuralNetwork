@@ -47,8 +47,10 @@ void NeuralNetwork::createInitialConnections() {
         LayerIterator it = hiddenLayers.begin();
         while (*it != *hiddenLayers.rbegin()) {
             LayerIterator curr = it++;
-            for (NeuronIterator firstIt = (*curr)->getNeurons()->begin(); firstIt != (*curr)->getNeurons()->end(); ++firstIt) {
-                for (NeuronIterator secondIt = (*it)->getNeurons()->begin(); secondIt != (*it)->getNeurons()->end(); ++secondIt) {
+            std::unordered_map<std::string, Neuron*>* firstNeurons = (*curr)->getNeurons();
+            std::unordered_map<std::string, Neuron*>* secondNeurons = (*it)->getNeurons();
+            for (NeuronIterator firstIt = firstNeurons->begin(); firstIt != firstNeurons->end(); ++firstIt) {
+                for (NeuronIterator secondIt = secondNeurons->begin(); secondIt != secondNeurons->end(); ++secondIt) {
                     Synapse* connection = new Synapse((*firstIt).second, (*secondIt).second);
                     (*firstIt).second->addSynapse(connection);
                 }
@@ -138,8 +140,8 @@ void NeuralNetwork::deserialize(std::string dataIn) { // loads the network from 
     std::string inputsString = *spl_it++;
     std::string outputsString = *spl_it++;
     std::string hNursString = *spl_it++;
-    std::string blayString = *spl_it++;
     std::string ilayString = *spl_it++;
+    std::string bnurString = *spl_it++;
     std::string hlaysString = *spl_it++;
     std::string olayString = *spl_it++;
 
@@ -151,6 +153,22 @@ void NeuralNetwork::deserialize(std::string dataIn) { // loads the network from 
     outputLayer->deserialize(olayString, deserializedNeurons);
 
     // Desearialize hidden layers
+    hiddenLayers.clear();
+    std::regex hiddenLayerSplit ("lay:([^l]*\\))*?\\)");
+    std::regex_token_iterator<std::string::iterator> hiddenLayerSpl_it (hlaysString.begin(), hlaysString.end(), hiddenLayerSplit);
+
+    while (hiddenLayerSpl_it != rend) {
+        Layer* layer = new Layer();
+        std::string layerString = *hiddenLayerSpl_it++;
+        layer->deserialize(layerString, deserializedNeurons);
+        hiddenLayers.push_front(layer);
+    }
+
+    // Deserialize Input Layer
+    inputLayer->deserialize(ilayString, deserializedNeurons);
+
+    // Deserialize the Bias Neuron
+    biasNeuron->deserialize(bnurString, deserializedNeurons, inputLayer);
 
     bool test = false;
 }
@@ -176,7 +194,7 @@ void NeuralNetwork::insertLayer(int index) {
     hiddenLayers.insert(it, layer);
 
     for(;it != hiddenLayers.end(); it++) {
-        ++(*it);
+        ++(**it);
     }
 }
 
