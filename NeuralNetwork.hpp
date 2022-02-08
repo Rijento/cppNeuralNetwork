@@ -30,6 +30,7 @@ public:
     std::string serialize(); // serializes the network to a string
     void deserialize(std::string dataIn); // loads the network from a serialized string
     void insertLayer(int index);
+    void addNewNode(int depth); // adds a new node to the hidden layer
     std::vector<float> feedForward(std::vector<float> inputData);
     void createInitialConnections();
     ~NeuralNetwork();

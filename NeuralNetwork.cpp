@@ -178,8 +178,15 @@ void NeuralNetwork::insertLayer(int index) {
     for(;it != hiddenLayers.end(); it++) {
         ++(*it);
     }
-
 }
+
+void NeuralNetwork::addNewNode(int depth) {
+    std::string id = "h/"+ std::to_string(hiddenNeuronCount++);
+    LayerIterator it = hiddenLayers.begin();
+    std::advance(it, depth);
+    (*it)->addNeuron(new Neuron(id, *it));
+}
+
 std::vector<float> NeuralNetwork::feedForward(std::vector<float> inputData) {
     for(int i = 0; i < inputData.size(); i++) { // These need to be activated in order along side the input data
         std::string id = "i/" + std::to_string(i);
