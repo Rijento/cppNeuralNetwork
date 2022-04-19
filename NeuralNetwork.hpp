@@ -12,8 +12,9 @@ class Synapse;
 class Neuron;
 class Layer;
 
-class NeuralNetwork
-{
+class NeuralNetwork {
+// Needs to be firends with all of the training algorithms
+friend class BackpropagationTrain;
 protected:
     Layer* inputLayer;
     Layer* outputLayer;

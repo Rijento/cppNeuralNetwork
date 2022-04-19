@@ -16,6 +16,7 @@ private:
     std::string id;
     Layer* layer;
     float activationLevel;
+    float archivedLevel;
     float outputLevel;
     float activationFunction(float x); // used in the activate functions
 public:
@@ -35,6 +36,7 @@ public:
     Layer* getLayer();
     void setLayer(Layer* layerIn);
     float getActivationLevel();
+    float getArchivedLevel();
     float getOutputLevel();
     ~Neuron(); // needed to delete the layer pointer
 };
