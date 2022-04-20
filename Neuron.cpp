@@ -107,6 +107,7 @@ float Neuron::activationFunction(float x) { // sigmoid activation function
     return y;
 }
 void Neuron::activate() {
+    dxpartial = 0.0;
     outputLevel = activationFunction(activationLevel);
     archivedLevel = activationLevel;
     activationLevel = 0; // Need to reset this for the next pass else it will just keep increasing.
@@ -138,6 +139,14 @@ float Neuron::getArchivedLevel() {
 float Neuron::getOutputLevel() {
     return outputLevel;
 }
+
+float Neuron::getDXPartial() {
+    return dxpartial;
+}
+void Neuron::incrementDXPartial(float val){
+    dxpartial += val;
+}
+
 Neuron::~Neuron() {
     delete layer;
 }

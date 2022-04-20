@@ -34,18 +34,26 @@ float BackpropagationTrain::backpropagate(Synapse* synapse, std::vector<float>& 
             tempsum += backpropagate(*it, actual, expected);
         }
         dxcost *= tempsum;
+        float blarg1 = synapse->getTo()->getDXPartial();
+        bool test1;
     } else {
-        int onum =  std::stoi(synapse->getTo()->getId().substr(1));
+        int onum =  std::stoi(synapse->getTo()->getId().substr(2));
         dxcost *= (2.0/(float)(network->outputs)) * dxMSE(actual[onum], expected[onum]);
+        float blarg = synapse->getTo()->getDXPartial();
+        bool test;
     }
     float oldWeight = synapse->getWeight();
-    synapse->setWeight(oldWeight - alpha*synapse->getFrom()->getArchivedLevel()*dxcost);
+    float newWeight = oldWeight - alpha*synapse->getFrom()->getArchivedLevel()*dxcost;
+
+    synapse->setWeight(isnan(newWeight)?oldWeight:newWeight);
+    synapse->getTo()->incrementDXPartial(dxcost*synapse->getWeight());
     return(dxcost*synapse->getWeight());
 }
 
 
 void BackpropagationTrain::train(std::vector<std::vector<float>> trainData, std::vector<std::vector<float>> trainLabels) {
     std::vector<float> actual;
+    float trainAccuracy = 0.0;
     for(int i = 0; i < trainData.size(); i++) {
         actual = network->feedForward(trainData[i]);
         for (NeuronIterator it = network->inputLayer->getNeurons()->begin(); it != network->inputLayer->getNeurons()->end(); ++it) {
@@ -54,5 +62,20 @@ void BackpropagationTrain::train(std::vector<std::vector<float>> trainData, std:
             }
         }
     }
+}
 
+float BackpropagationTrain::test(std::vector<std::vector<float>> testData, std::vector<std::vector<float>> testLabels) {
+    std::vector<float> actual;
+    std::vector<float> expected;
+    float accuracy = 0.0;
+    for(int i = 0; i < testData.size(); ++i) {
+        float itemAccuracy = 0.0;
+        actual = network->feedForward(testData[i]);
+        expected = testLabels[i];
+        for(int j = 0; j < actual.size(); ++j) {
+            itemAccuracy += MSE(actual[j], expected[j]);
+        }
+        accuracy += itemAccuracy > 0.5 ? 0 : 1;
+    }
+    return accuracy/testData.size();
 }

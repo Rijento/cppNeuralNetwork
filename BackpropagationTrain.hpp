@@ -13,7 +13,6 @@ public:
     BackpropagationTrain(NeuralNetwork* networkIn, float alphaIn);
     void train(std::vector<std::vector<float>> trainData, std::vector<std::vector<float>> trainLabels) override;
     float test(std::vector<std::vector<float>> testData, std::vector<std::vector<float>> testLabels) override;
-    ~BackpropagationTrain();
 };
 
 #endif

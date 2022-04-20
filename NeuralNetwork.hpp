@@ -19,7 +19,7 @@ protected:
     Layer* inputLayer;
     Layer* outputLayer;
     std::list<Layer*> hiddenLayers;
-    Neuron* biasNeuron;
+    // Neuron* biasNeuron;
     Layer* getRandomLayer();
 private:
     int hiddenNeuronCount;

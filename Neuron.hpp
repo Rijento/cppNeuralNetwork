@@ -18,6 +18,7 @@ private:
     float activationLevel;
     float archivedLevel;
     float outputLevel;
+    float dxpartial;
     float activationFunction(float x); // used in the activate functions
 public:
     Neuron();
@@ -38,6 +39,8 @@ public:
     float getActivationLevel();
     float getArchivedLevel();
     float getOutputLevel();
+    float getDXPartial();
+    void incrementDXPartial(float);
     ~Neuron(); // needed to delete the layer pointer
 };
 #endif
