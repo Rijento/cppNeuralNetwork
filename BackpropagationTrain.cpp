@@ -41,18 +41,14 @@ float BackpropagationTrain::backpropagate(Synapse* synapse, std::vector<float>& 
         } else {
             int onum =  std::stoi(synapse->getTo()->getId().substr(2));
             dxcost *= (2.0/(float)(network->outputs)) * dxMSE(actual[onum], expected[onum]);
-            bool testval = true;
         }
     }
     float oldWeight = synapse->getWeight();
     float newWeight = oldWeight - alpha*synapse->getFrom()->getOutputLevel()*dxcost;
 
-    // if (synapse->getFrom()->getId().compare("i/0") == 0)
-
     synapse->setWeight(isnan(newWeight)?oldWeight:newWeight);
     synapse->getFrom()->incrementDXPartial(dxcost*synapse->getWeight());
     return(dxcost*synapse->getWeight());
-    
 }
 
 
