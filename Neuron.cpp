@@ -152,7 +152,11 @@ float Neuron::getDXPartial() {
     return dxpartial;
 }
 void Neuron::incrementDXPartial(float val){
-    dxpartial += val;
+    if(std::isnan(dxpartial)) {
+        dxpartial = val;
+    } else {
+        dxpartial += val;
+    }
 }
 
 Neuron::~Neuron() {
