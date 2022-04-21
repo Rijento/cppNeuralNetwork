@@ -107,7 +107,7 @@ float Neuron::activationFunction(float x) { // sigmoid activation function
     return y;
 }
 void Neuron::activate() {
-    dxpartial = 0.0;
+    dxpartial = NULL;
     outputLevel = activationFunction(activationLevel);
     archivedLevel = activationLevel;
     activationLevel = 0; // Need to reset this for the next pass else it will just keep increasing.
@@ -118,9 +118,13 @@ void Neuron::activate() {
     }
 }
 void Neuron::activate(float dataIn) { // Used for input nodes
+    dxpartial = NULL;
+    outputLevel = activationFunction(dataIn);
+    archivedLevel = dataIn;
+    activationLevel = 0; // Need to reset this for the next pass else it will just keep increasing.
     for (SynapseIterator it = synapses.begin(); it != synapses.end(); ++it) {
         if ((*it)->isEnabled()) {
-            (*it)->getTo()->activationLevel += (*it)->getWeight() * dataIn;
+            (*it)->getTo()->activationLevel += (*it)->getWeight() * outputLevel;
         }
     }
 }

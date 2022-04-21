@@ -27,27 +27,32 @@ float BackpropagationTrain::MSE(float actual, float expected) {
 
 float BackpropagationTrain::backpropagate(Synapse* synapse, std::vector<float>& actual, std::vector<float>& expected) {
     float dxcost = dxsigmoid(synapse->getTo()->getArchivedLevel());
-    if (synapse->getTo()->getSynapses()->size() > 0) {
-        Neuron* curr = synapse->getTo();
-        float tempsum = 0.0;
-        for (SynapseIterator it = curr->getSynapses()->begin(); it != curr->getSynapses()->end(); ++it) {
-            tempsum += backpropagate(*it, actual, expected);
-        }
-        dxcost *= tempsum;
-        float blarg1 = synapse->getTo()->getDXPartial();
-        bool test1;
+    
+    if(synapse->getTo()->getDXPartial() != NULL) {
+        dxcost *= synapse->getTo()->getDXPartial();
     } else {
-        int onum =  std::stoi(synapse->getTo()->getId().substr(2));
-        dxcost *= (2.0/(float)(network->outputs)) * dxMSE(actual[onum], expected[onum]);
-        float blarg = synapse->getTo()->getDXPartial();
-        bool test;
+        if (synapse->getTo()->getSynapses()->size() > 0) {
+            Neuron* curr = synapse->getTo();
+            float tempsum = 0.0;
+            for (SynapseIterator it = curr->getSynapses()->begin(); it != curr->getSynapses()->end(); ++it) {
+                tempsum += backpropagate(*it, actual, expected);
+            }
+            dxcost *= tempsum;
+        } else {
+            int onum =  std::stoi(synapse->getTo()->getId().substr(2));
+            dxcost *= (2.0/(float)(network->outputs)) * dxMSE(actual[onum], expected[onum]);
+            bool testval = true;
+        }
     }
     float oldWeight = synapse->getWeight();
-    float newWeight = oldWeight - alpha*synapse->getFrom()->getArchivedLevel()*dxcost;
+    float newWeight = oldWeight - alpha*synapse->getFrom()->getOutputLevel()*dxcost;
+
+    // if (synapse->getFrom()->getId().compare("i/0") == 0)
 
     synapse->setWeight(isnan(newWeight)?oldWeight:newWeight);
-    synapse->getTo()->incrementDXPartial(dxcost*synapse->getWeight());
+    synapse->getFrom()->incrementDXPartial(dxcost*synapse->getWeight());
     return(dxcost*synapse->getWeight());
+    
 }
 
 
