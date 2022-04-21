@@ -28,7 +28,7 @@ float BackpropagationTrain::MSE(float actual, float expected) {
 float BackpropagationTrain::backpropagate(Synapse* synapse, std::vector<float>& actual, std::vector<float>& expected) {
     float dxcost = dxsigmoid(synapse->getTo()->getArchivedLevel());
     
-    if(synapse->getTo()->getDXPartial() != NULL) {
+    if(synapse->getTo()->getDXPartial() != NAN) {
         dxcost *= synapse->getTo()->getDXPartial();
     } else {
         if (synapse->getTo()->getSynapses()->size() > 0) {

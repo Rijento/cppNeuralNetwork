@@ -7,6 +7,8 @@
 Neuron::Neuron() {
     id = "PLACEHOLDER";
     layer = NULL;
+    dxpartial = NAN;
+    archivedLevel = 0.0;
     activationLevel = 0.0;
     outputLevel = 0.0;
 }
@@ -15,6 +17,7 @@ Neuron::Neuron(std::string idIn) {
     id = idIn;
     activationLevel = 0.0;
     archivedLevel = 0.0;
+    dxpartial = NAN;
     outputLevel = 0.0;
 }
 Neuron::Neuron(std::string idIn, Layer* layerIn) {
@@ -22,6 +25,7 @@ Neuron::Neuron(std::string idIn, Layer* layerIn) {
     activationLevel = 0.0;
     archivedLevel = 0.0;
     outputLevel = 0.0;
+    dxpartial = NAN;
     layer = layerIn;
 }
 
@@ -107,7 +111,7 @@ float Neuron::activationFunction(float x) { // sigmoid activation function
     return y;
 }
 void Neuron::activate() {
-    dxpartial = NULL;
+    dxpartial = NAN;
     outputLevel = activationFunction(activationLevel);
     archivedLevel = activationLevel;
     activationLevel = 0; // Need to reset this for the next pass else it will just keep increasing.
@@ -118,7 +122,7 @@ void Neuron::activate() {
     }
 }
 void Neuron::activate(float dataIn) { // Used for input nodes
-    dxpartial = NULL;
+    dxpartial = NAN;
     outputLevel = activationFunction(dataIn);
     archivedLevel = dataIn;
     activationLevel = 0; // Need to reset this for the next pass else it will just keep increasing.
