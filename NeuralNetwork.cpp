@@ -2,6 +2,11 @@
 #include "Neuron.hpp"
 #include "Layer.hpp"
 #include "Synapse.hpp"
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/ostreamwrapper.h>
+#include <rapidjson/writer.h>
+#include <fstream>
 #include <regex>
 #include <random>
 
@@ -25,9 +30,6 @@ NeuralNetwork::NeuralNetwork(int inputsIn, int outputsIn){
         Neuron* inputNeuron = new Neuron(id, inputLayer);
         inputLayer->addNeuron(inputNeuron);
     }
-    //Create Bias Neuron
-    // biasNeuron = new Neuron("bias", inputLayer);
-
     for (int i = 0; i < outputs; i++) { // Create Output Neurons
         std::string id = "o/" + std::to_string(i);
         Neuron* outputNeuron = new Neuron(id, outputLayer);
@@ -76,13 +78,6 @@ void NeuralNetwork::createInitialConnections() {
                 (*lastIterator).second->addSynapse(connection); // All weights are 1.0
             }
         }
-
-        // // Add connections for bias neuron
-        // for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
-        //     // Assume that there are no connections, because there shouldn't be
-        //     Synapse* connection = new Synapse(biasNeuron, (*outputIterator).second, randWeight());
-        //     biasNeuron->addSynapse(connection); // All weights are 1.0
-        // }
     } else {
         for (NeuronIterator inputIterator = inputLayer->getNeurons()->begin(); inputIterator != inputEnd; ++inputIterator) {
             for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
@@ -91,12 +86,6 @@ void NeuralNetwork::createInitialConnections() {
                 (*inputIterator).second->addSynapse(connection); // All weights are 1.0
             }
         }
-        // // Add connections for bias neuron
-        // for (NeuronIterator outputIterator = outputLayer->getNeurons()->begin(); outputIterator != outputEnd; ++outputIterator) {
-        //     // Assume that there are no connections, because there shouldn't be
-        //     Synapse* connection = new Synapse(biasNeuron, (*outputIterator).second, randWeight());
-        //     biasNeuron->addSynapse(connection); // All weights are 1.0
-        // }
     }
 }
 
@@ -119,70 +108,74 @@ NeuralNetwork* NeuralNetwork::clone() { // creates a copy of the network TODO: T
     return clone;
 }
 
-std::string NeuralNetwork::serialize() {
-    std::string serialized = "NN:(" + std::to_string(inputs) + "," + std::to_string(outputs) + "," + std::to_string(hiddenNeuronCount)
-        + ",ilay:(";
-    serialized += inputLayer->serialize();
-    // serialized += "),bnur:(" + biasNeuron->serialize();
-    serialized += "),hlays:(";
+void NeuralNetwork::serialize(std::string fileName) {
+    rapidjson::Document document;
+    document.SetObject();
+    std::ofstream fileStream(fileName, std::ios_base::trunc);
+    rapidjson::OStreamWrapper osw(fileStream);
+    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
+    rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
 
-    // Serialize in reverse order to ensure that everything loads properly when deserializing.
+    rapidjson::Value nnet(rapidjson::kObjectType);
+
+    nnet.AddMember("inputs", inputs, allocator);
+    nnet.AddMember("outputs", outputs, allocator);
+    nnet.AddMember("hiddenCount", hiddenNeuronCount, allocator);
+    nnet.AddMember("inputLayer", inputLayer->serialize(allocator), allocator);
+
+    rapidjson::Value hlays(rapidjson::kArrayType);
+
     for(RLayerIterator it = hiddenLayers.rbegin(); it != hiddenLayers.rend(); ++it) {
-        serialized += (*it)->serialize();
-        serialized += ",";
+        hlays.PushBack((*it)->serialize(allocator), allocator);
     }
 
-    serialized += "),olay:(" + outputLayer->serialize();
-    serialized += "))";
+    nnet.AddMember("hiddenLayers", hlays, allocator);
+    nnet.AddMember("outputLayer", outputLayer->serialize(allocator),allocator);
 
-    return serialized;
-
+    document.AddMember("NeuralNet", nnet, allocator);
+    document.Accept(writer);
 }
-void NeuralNetwork::deserialize(std::string dataIn) { // loads the network from a serialized string
+void NeuralNetwork::deserialize(std::string fileName) { // loads the network from a serialized string
+    rapidjson::Document document;
+    document.SetObject();
+    std::ifstream fileStream(fileName);
+    rapidjson::IStreamWrapper isw(fileStream);
+    document.ParseStream<rapidjson::kParseFullPrecisionFlag>(isw);
+
     std::unordered_map<std::string, Neuron*> deserializedNeurons;
-    std::regex_token_iterator<std::string::iterator> rend;
 
-    std::vector<std::string> testing;
+    // Clear starting layers
+    delete inputLayer;
+    delete outputLayer;
 
-    // std::regex split ("(\\d*),(\\d*),(\\d*),ilay:\\((.*)\\),bnur:\\((.*)\\),hlays:\\((.*)\\),olay:\\((.*)\\)\\)");
-    std::regex split ("(\\d*),(\\d*),(\\d*),ilay:\\((.*)\\),hlays:\\((.*)\\),olay:\\((.*)\\)\\)");
-    int submatches[] = {1, 2, 3, 4, 5, 6, 7};
-    std::regex_token_iterator<std::string::iterator> spl_it (dataIn.begin(), dataIn.end(), split, submatches);
-
-    std::string inputsString = *spl_it++;
-    std::string outputsString = *spl_it++;
-    std::string hNursString = *spl_it++;
-    std::string ilayString = *spl_it++;
-    // std::string bnurString = *spl_it++;
-    std::string hlaysString = *spl_it++;
-    std::string olayString = *spl_it++;
-
-    inputs = std::stoi(inputsString);
-    outputs = std::stoi(outputsString);
-    hiddenNeuronCount = std::stoi(hNursString);
-
+    inputLayer = new Layer(0);
+    outputLayer = new Layer(-1);
+    
+    inputs = document["NeuralNet"]["inputs"].GetInt();
+    outputs = document["NeuralNet"]["outputs"].GetInt();
+    hiddenNeuronCount = document["NeuralNet"]["hiddenCount"].GetInt();
+    rapidjson::Value ilayVal(rapidjson::kObjectType);
+    ilayVal = document["NeuralNet"]["inputLayer"].GetObject();
+    rapidjson::Value hlaysVal(rapidjson::kArrayType);
+    hlaysVal = document["NeuralNet"]["hiddenLayers"].GetArray();
+    rapidjson::Value olayVal(rapidjson::kObjectType);
+    olayVal = document["NeuralNet"]["outputLayer"].GetObject();
+    
     // Deserialize output layer
-    outputLayer->deserialize(olayString, deserializedNeurons);
+    outputLayer->deserialize(olayVal, deserializedNeurons);
 
     // Desearialize hidden layers
     hiddenLayers.clear();
-    std::regex hiddenLayerSplit ("lay:([^l]*\\))*?\\)");
-    std::regex_token_iterator<std::string::iterator> hiddenLayerSpl_it (hlaysString.begin(), hlaysString.end(), hiddenLayerSplit);
 
-    while (hiddenLayerSpl_it != rend) {
+    for(rapidjson::SizeType i = 0; i < hlaysVal.Size(); i++) {
         Layer* layer = new Layer();
-        std::string layerString = *hiddenLayerSpl_it++;
-        layer->deserialize(layerString, deserializedNeurons);
+        // std::string layerString = *hiddenLayerSpl_it++;
+        layer->deserialize(hlaysVal[i].GetObject(), deserializedNeurons);
         hiddenLayers.push_front(layer);
     }
 
     // Deserialize Input Layer
-    inputLayer->deserialize(ilayString, deserializedNeurons);
-
-    // Deserialize the Bias Neuron
-    // biasNeuron->deserialize(bnurString, deserializedNeurons, inputLayer);
-
-    bool test = false;
+    inputLayer->deserialize(ilayVal, deserializedNeurons);
 }
 
 Layer* NeuralNetwork::getRandomLayer() {

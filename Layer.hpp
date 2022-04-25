@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <rapidjson/document.h>
 
 #define NeuronIterator std::unordered_map<std::string, Neuron*>::iterator
 
@@ -16,8 +17,8 @@ public:
     Layer();
     Layer(int depthIn);
     Layer* clone(std::unordered_map<std::string, Neuron*> &clonedNeurons); // creates a copy of the layer
-    std::string serialize(); // serializes the layer to a string
-    void deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons); // loads the layer from a serialized string
+    rapidjson::Value serialize(rapidjson::Document::AllocatorType& allocator); // serializes the layer to a string
+    void deserialize(rapidjson::Value& dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons); // loads the layer from a serialized string
     void addNeuron(Neuron* neuron);
     void removeNeuron(Neuron* neuron);
     std::unordered_map<std::string, Neuron*>* getNeurons();

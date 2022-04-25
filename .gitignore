@@ -4,3 +4,4 @@ Testbench.cpp
 Testbench
 *.data
 *.csv
+*.json

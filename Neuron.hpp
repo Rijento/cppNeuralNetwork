@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
+#include <rapidjson/document.h>
 
 #define SynapseIterator std::unordered_set<Synapse*>::iterator
 
@@ -25,8 +26,8 @@ public:
     Neuron(std::string idIn);
     Neuron(std::string idIn, Layer* layerIn);
     Neuron* clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, Layer* clonedLayer); // creates a copy of the neuron
-    std::string serialize(); // serializes the neuron to a string
-    void deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons, Layer* deserializedLayer); // loads the neuron from a serialized string
+    rapidjson::Value serialize(rapidjson::Document::AllocatorType& allocator); // serializes the neuron to a string
+    void deserialize(rapidjson::Value& dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons, Layer* deserializedLayer); // loads the neuron from a serialized string
     std::unordered_set<Synapse*>* getSynapses();
     Synapse* getRandomSynapse();
     bool isConnected(Neuron* neuron);

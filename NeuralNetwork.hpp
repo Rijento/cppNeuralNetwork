@@ -28,8 +28,8 @@ private:
 public:
     NeuralNetwork(int inputsIn, int outputsIn);
     NeuralNetwork*clone(); // creates a copy of the network
-    std::string serialize(); // serializes the network to a string
-    void deserialize(std::string dataIn); // loads the network from a serialized string
+    void serialize(std::string fileName); // serializes the network to a JSON file
+    void deserialize(std::string fileName); // loads the network from a serialized json file
     void insertLayer(int index);
     void addNewNode(int depth); // adds a new node to the hidden layer
     std::vector<float> feedForward(std::vector<float> inputData);

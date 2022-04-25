@@ -1,6 +1,7 @@
 #include "Synapse.hpp"
 #include "Neuron.hpp"
 #include <regex>
+#include <rapidjson/document.h>
 
 Synapse::Synapse() {
     from = NULL;
@@ -23,20 +24,22 @@ Synapse::Synapse(Neuron* fromIn, Neuron* toIn, float weightIn) {
     enabled = true;
 }
 
-std::string Synapse::serialize() {
-    return "syn:(" + from->getId() + "," + to->getId() + "," + std::to_string(weight) + "," + std::to_string(enabled) + ")";
+rapidjson::Value Synapse::serialize(rapidjson::Document::AllocatorType& allocator) {
+    rapidjson::Value serialized(rapidjson::kObjectType);
+    rapidjson::Value fromID(from->getId().c_str(), from->getId().size(), allocator);
+    rapidjson::Value toID(to->getId().c_str(), to->getId().size(), allocator);
+    serialized.AddMember("fromID", fromID, allocator);
+    serialized.AddMember("toID", toID, allocator);
+    serialized.AddMember("weight", weight, allocator);
+    serialized.AddMember("enabled", enabled, allocator);
+    return serialized;
 }
-void Synapse::deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons) {
-    std::regex split ("\\((.*),(.*),(.*),(.*)\\)");
-    std::regex_token_iterator<std::string::iterator> spl_it (dataIn.begin(), dataIn.end(), split, {1,2,3,4});
-
-    std::string fromId = *spl_it++;
-    std::string toId = *spl_it++;
-    float weightIn = std::stof(*spl_it++);
-    bool enabledIn = std::stoi(*spl_it);
+void Synapse::deserialize(rapidjson::Value& dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons) {
+    weight = dataIn["weight"].GetFloat();
+    enabled = dataIn["enabled"].GetBool();
+    std::string fromId = dataIn["fromID"].GetString();
+    std::string toId = dataIn["toID"].GetString();
     
-    weight = weightIn;
-    enabled = enabledIn;
     from = deserializedNeurons[fromId];
     to = deserializedNeurons[toId];
 }

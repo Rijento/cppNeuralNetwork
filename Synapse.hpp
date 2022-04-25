@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <rapidjson/document.h>
 class Neuron;
 class Synapse
 {
@@ -15,8 +16,8 @@ public:
     Synapse();
     Synapse(Neuron* fromIn, Neuron* toIn);
     Synapse(Neuron* fromIn, Neuron* toIn, float weightIn);
-    std::string serialize();
-    void deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons);
+    rapidjson::Value serialize(rapidjson::Document::AllocatorType& allocator);
+    void deserialize(rapidjson::Value& dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons);
     Synapse* clone(std::unordered_map<std::string, Neuron*> &clonedNeurons);
     Neuron* getFrom();
     Neuron* getTo();

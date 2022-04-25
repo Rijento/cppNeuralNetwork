@@ -1,6 +1,7 @@
 #include "Neuron.hpp"
 #include "Synapse.hpp"
 #include "Layer.hpp"
+#include <rapidjson/document.h>
 #include <math.h>
 #include <regex>
 
@@ -49,37 +50,35 @@ Neuron* Neuron::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, L
 
     return clone;
 }
-std::string Neuron::serialize() {
-    std::string serialized = "nur:(" + id + ",syns:(";
+rapidjson::Value Neuron::serialize(rapidjson::Document::AllocatorType& allocator) {
+    rapidjson::Value serialized(rapidjson::kObjectType);
+    // std::string serialized = "nur:(" + id + ",syns:(";
+    rapidjson::Value jId(id.c_str(), id.size(), allocator);
+    serialized.AddMember("id", jId, allocator);
+    rapidjson::Value syns(rapidjson::kArrayType);
 
     for(SynapseIterator it = synapses.begin(); it != synapses.end(); ++it) {
-        serialized += (*it)->serialize();
-        serialized += ",";
+        // serialized += (*it)->serialize();
+        // serialized += ",";
+        syns.PushBack((*it)->serialize(allocator),allocator);
     }
+    serialized.AddMember("syns", syns, allocator);
 
-    return serialized + "))";
+    return serialized;
 }
-void Neuron::deserialize(std::string dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons, Layer* deserializedLayer) {
-    std::regex_token_iterator<std::string::iterator> rend;
-    std::regex nurSplit ("\\((.*),syns:\\((.*)\\)\\)");
-    std::regex synsSplit ("syn:\\(.*?\\)");
-    std::regex_token_iterator<std::string::iterator> nurSpl_it (dataIn.begin(), dataIn.end(), nurSplit, {1,2});
-    std::string idString = *nurSpl_it++;
-    std::string synsString = *nurSpl_it;
-    
-    synapses.clear();
-    id = idString;
+void Neuron::deserialize(rapidjson::Value& dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons, Layer* deserializedLayer) {
+    id = dataIn["id"].GetString();
     layer = deserializedLayer;
+    deserializedNeurons[id] = this;
 
-    deserializedNeurons[idString] = this;
+    rapidjson::Value synsVal(rapidjson::kArrayType);
+    synsVal = dataIn["syns"].GetArray();
 
-    std::regex_token_iterator<std::string::iterator> synsSpl_it (synsString.begin(), synsString.end(), synsSplit);
-    while (synsSpl_it != rend) {
+    for(rapidjson::SizeType i = 0; i < synsVal.Size(); i++) {
         Synapse* synapse = new Synapse();
-        synapse->deserialize(*synsSpl_it++, deserializedNeurons);
+        synapse->deserialize(synsVal[i].GetObject(), deserializedNeurons);
         synapses.insert(synapse);
     }
-    bool test = false;
 }
 std::unordered_set<Synapse*>* Neuron::getSynapses() {
     return &synapses;
