@@ -203,6 +203,10 @@ void NeuralNetwork::insertLayer(int index) {
     }
 }
 
+Layer* NeuralNetwork::getInputLayer() {
+    return inputLayer;
+}
+
 void NeuralNetwork::addNewNode(int depth) {
     std::string id = "h/"+ std::to_string(hiddenNeuronCount++);
     LayerIterator it = hiddenLayers.begin();
