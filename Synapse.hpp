@@ -28,7 +28,6 @@ public:
     void disable();
     bool operator==(const Synapse& other) const;
     bool operator==(const Synapse* other) const;
-    ~Synapse(); // needed to delete the to and from pointers
 };
 
 #endif

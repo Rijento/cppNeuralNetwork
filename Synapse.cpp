@@ -87,8 +87,3 @@ bool Synapse::operator==(const Synapse* other) const {
     }
     return false;
 }
-
-Synapse::~Synapse() { // Clean up pointers
-    delete from;
-    delete to;
-}

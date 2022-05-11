@@ -159,5 +159,7 @@ void Neuron::incrementDXPartial(float val){
 }
 
 Neuron::~Neuron() {
-    delete layer;
+    for(Synapse* synapse : synapses) {
+        delete synapse;
+    }
 }

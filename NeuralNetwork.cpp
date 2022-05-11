@@ -241,5 +241,11 @@ std::vector<float> NeuralNetwork::feedForward(std::vector<float> inputData) {
 NeuralNetwork::~NeuralNetwork() {
     delete inputLayer;
     delete outputLayer;
+    for(Layer* layer : hiddenLayers) {
+        delete layer;
+    }
     // delete biasNeuron;
+
+    // NEED TO REDO THIS TO DELETE ALL HIDDEN LAYERS
+    // NEED TO DO ALL RECURSIVE SHIT TO DELETE EVERY POINTER INDIVIDUALLY
 }

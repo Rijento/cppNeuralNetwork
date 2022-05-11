@@ -31,6 +31,7 @@ public:
     Layer operator++(int); // postfix
     Layer& operator--(); // prefix
     Layer operator--(int); // postfix
+    ~Layer();
 };
 
 #endif

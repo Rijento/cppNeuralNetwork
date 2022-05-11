@@ -92,3 +92,8 @@ Layer Layer::operator--(int) { // Postfix
     operator--();
     return old;
 }
+Layer::~Layer() {
+    for(std::pair<const std::string, Neuron *> pair : neurons) {
+        delete pair.second;
+    }
+}
