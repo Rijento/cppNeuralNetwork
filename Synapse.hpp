@@ -26,6 +26,8 @@ public:
     bool isEnabled();
     void enable();
     void disable();
+    bool operator==(const Synapse& other) const;
+    bool operator==(const Synapse* other) const;
     ~Synapse(); // needed to delete the to and from pointers
 };
 

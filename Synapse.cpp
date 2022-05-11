@@ -70,6 +70,24 @@ void Synapse::enable() {
 void Synapse::disable() {
     enabled = false;
 }
+
+bool Synapse::operator==(const Synapse& other) const {
+    if (from->getId() == other.from->getId()) {
+        if (to->getId() == other.to->getId()) {
+            return true;
+        }
+    }
+    return false;
+}
+bool Synapse::operator==(const Synapse* other) const {
+    if (from->getId() == other->from->getId()) {
+        if (to->getId() == other->to->getId()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Synapse::~Synapse() { // Clean up pointers
     delete from;
     delete to;
