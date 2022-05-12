@@ -13,7 +13,7 @@ class Layer;
 
 struct synapseCompare
 {
-    bool operator()(Synapse* lhs, Synaspe* rhs);
+    bool operator()(const Synapse* lhs, const Synaspe* rhs) const;
 };
 
 

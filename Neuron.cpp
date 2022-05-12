@@ -5,7 +5,7 @@
 #include <math.h>
 #include <regex>
 
-bool synapseCompare::operator()(Synapse* lhs, Synaspe* rhs) {
+bool synapseCompare::operator()(const Synapse* lhs, const Synaspe* rhs) const {
     return (*lhs) == rhs;
 }
 
