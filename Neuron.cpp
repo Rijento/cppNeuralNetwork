@@ -5,6 +5,12 @@
 #include <math.h>
 #include <regex>
 
+
+size_t synapseHash::operator()(const Synapse* c) const {
+    std::hash<std::string> str_hash;
+    return str_hash((*c).operator std::string());
+}
+
 bool synapseCompare::operator()(const Synapse* lhs, const Synapse* rhs) const {
     return (*lhs) == rhs;
 }
@@ -44,7 +50,7 @@ Neuron* Neuron::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, L
     clonedNeurons[id] = clone; 
 
     // Clone all of the synapses
-    std::unordered_set<Synapse*> clonedSynapses;
+    std::unordered_set<Synapse*, synapseHash, synapseCompare> clonedSynapses;
     for(SynapseIterator it = synapses.begin(); it != synapses.end(); ++it) {
         Synapse* clonedSynapse = (*it)->clone(clonedNeurons);
         clonedSynapses.insert(clonedSynapse);
@@ -84,7 +90,7 @@ void Neuron::deserialize(rapidjson::Value& dataIn, std::unordered_map<std::strin
         synapses.insert(synapse);
     }
 }
-std::unordered_set<Synapse*>* Neuron::getSynapses() {
+std::unordered_set<Synapse*, synapseHash, synapseCompare>* Neuron::getSynapses() {
     return &synapses;
 }
 Synapse* Neuron::getRandomSynapse() {

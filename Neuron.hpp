@@ -6,10 +6,15 @@
 #include <unordered_map>
 #include <rapidjson/document.h>
 
-#define SynapseIterator std::unordered_set<Synapse*>::iterator
+#define SynapseIterator std::unordered_set<Synapse *, synapseHash, synapseCompare>::iterator
 
 class Synapse;
 class Layer;
+
+
+struct synapseHash {
+    size_t operator() (const Synapse* c) const;
+};
 
 struct synapseCompare
 {
@@ -20,7 +25,7 @@ struct synapseCompare
 class Neuron
 {
 private:
-    std::unordered_set<Synapse*, synapseCompare> synapses;
+    std::unordered_set<Synapse*, synapseHash, synapseCompare> synapses;
     std::string id;
     Layer* layer;
     float activationLevel;
@@ -35,7 +40,7 @@ public:
     Neuron* clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, Layer* clonedLayer); // creates a copy of the neuron
     rapidjson::Value serialize(rapidjson::Document::AllocatorType& allocator); // serializes the neuron to a string
     void deserialize(rapidjson::Value& dataIn, std::unordered_map<std::string, Neuron*> &deserializedNeurons, Layer* deserializedLayer); // loads the neuron from a serialized string
-    std::unordered_set<Synapse*>* getSynapses();
+    std::unordered_set<Synapse*, synapseHash, synapseCompare>* getSynapses();
     Synapse* getRandomSynapse();
     bool isConnected(Neuron* neuron);
     void addSynapse(Synapse* synapse);

@@ -26,6 +26,7 @@ public:
     bool isEnabled();
     void enable();
     void disable();
+    operator std::string() const;
     bool operator==(const Synapse& other) const;
     bool operator==(const Synapse* other) const;
 };

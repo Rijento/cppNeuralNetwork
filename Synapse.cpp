@@ -71,6 +71,10 @@ void Synapse::disable() {
     enabled = false;
 }
 
+Synapse::operator std::string() const {
+    return from->getId() + ',' + to->getId();
+}
+
 bool Synapse::operator==(const Synapse& other) const {
     if (from->getId() == other.from->getId()) {
         if (to->getId() == other.to->getId()) {
