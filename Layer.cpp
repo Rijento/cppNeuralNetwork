@@ -63,6 +63,11 @@ Neuron* Layer::getRandomNeuron() {
     std::advance(it, randint);
     return it->second;
 }
+
+Neuron* Layer::getNeuronById(std::string id) {
+    return neurons[id];
+}
+
 bool Layer::containsNeuron(Neuron* neuron) {
     NeuronIterator it = neurons.find(neuron->getId());
     return it != neurons.end();
