@@ -5,6 +5,10 @@
 #include <math.h>
 #include <regex>
 
+bool synapseCompare::operator()(Synapse* lhs, Synaspe* rhs) {
+    return (*lhs) == rhs;
+}
+
 Neuron::Neuron() {
     id = "PLACEHOLDER";
     layer = NULL;

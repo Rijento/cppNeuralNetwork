@@ -10,10 +10,17 @@
 
 class Synapse;
 class Layer;
+
+struct synapseCompare
+{
+    bool operator()(Synapse* lhs, Synaspe* rhs);
+};
+
+
 class Neuron
 {
 private:
-    std::unordered_set<Synapse*> synapses;
+    std::unordered_set<Synapse*, synapseCompare> synapses;
     std::string id;
     Layer* layer;
     float activationLevel;
