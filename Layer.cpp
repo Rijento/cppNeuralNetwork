@@ -9,7 +9,8 @@ Layer::Layer(int depthIn) {
     depth = depthIn;
 }
 Layer* Layer::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons) {
-    Layer* clone = new Layer(depth);
+    Layer* clone = new Layer();
+    clone->depth = depth;
     std::unordered_map<std::string, Neuron*> layerNeuronClones;
     for (NeuronIterator it = neurons.begin(); it != neurons.end(); ++it) {
         Neuron* clonedNeuron = it->second->clone(clonedNeurons, clone); // Clone the neuron

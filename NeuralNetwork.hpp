@@ -1,8 +1,8 @@
 #ifndef __NEURALNETWORK_H__
 #define __NEURALNETWORK_H__
 
-#include <list>
 #include <vector>
+#include <list>
 #include <string>
 
 #define LayerIterator std::list<Layer*>::iterator
@@ -26,12 +26,13 @@ private:
     int inputs;
     int outputs;
 public:
+    NeuralNetwork();
     NeuralNetwork(int inputsIn, int outputsIn);
     NeuralNetwork*clone(); // creates a copy of the network
     void serialize(std::string fileName); // serializes the network to a JSON file
     void deserialize(std::string fileName); // loads the network from a serialized json file
     Layer* getInputLayer();
-    std::list<Layer*> getHiddenLayers();
+    std::list<Layer*>* getHiddenLayers();
     int getHiddenNeuronCount();
     void insertLayer(int index);
     void addNewNode(int depth); // adds a new node to the hidden layer

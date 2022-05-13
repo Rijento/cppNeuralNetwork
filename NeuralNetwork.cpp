@@ -19,6 +19,8 @@ float randWeight() {
 
 // Class funcitons
 
+NeuralNetwork::NeuralNetwork() {}
+
 NeuralNetwork::NeuralNetwork(int inputsIn, int outputsIn){
     inputLayer = new Layer(0);
     outputLayer = new Layer(-1);
@@ -90,7 +92,7 @@ void NeuralNetwork::createInitialConnections() {
 }
 
 NeuralNetwork* NeuralNetwork::clone() { // creates a copy of the network TODO: THIS
-    NeuralNetwork* clone = new NeuralNetwork(inputs, outputs);
+    NeuralNetwork* clone = new NeuralNetwork();
     std::unordered_map<std::string, Neuron*> clonedNeurons;
 
     clone->outputLayer = outputLayer->clone(clonedNeurons);
@@ -101,6 +103,9 @@ NeuralNetwork* NeuralNetwork::clone() { // creates a copy of the network TODO: T
     }
 
     clone->hiddenLayers = clonedHiddenLayers;
+    clone->hiddenNeuronCount = hiddenNeuronCount;
+    clone->inputs = inputs;
+    clone->outputs = outputs;
     
     clone->inputLayer = inputLayer->clone(clonedNeurons);
     // clone->biasNeuron = biasNeuron->clone(clonedNeurons,clone->inputLayer);
@@ -207,8 +212,8 @@ Layer* NeuralNetwork::getInputLayer() {
     return inputLayer;
 }
 
-std::list<Layer*> NeuralNetwork::getHiddenLayers() {
-    return hiddenLayers;
+std::list<Layer*>* NeuralNetwork::getHiddenLayers() {
+    return &hiddenLayers;
 }
 
 int NeuralNetwork::getHiddenNeuronCount() {

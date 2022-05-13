@@ -42,7 +42,9 @@ Neuron::Neuron(std::string idIn, Layer* layerIn) {
 
 Neuron* Neuron::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons, Layer* clonedLayer) {
     // Create clone and set basic values
-    Neuron* clone = new Neuron(id, clonedLayer);
+    Neuron* clone = new Neuron();
+    clone->id = id;
+    clone->layer = clonedLayer;
     clone->activationLevel = activationLevel;
     clone->outputLevel = outputLevel;
 

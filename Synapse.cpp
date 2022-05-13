@@ -44,7 +44,9 @@ void Synapse::deserialize(rapidjson::Value& dataIn, std::unordered_map<std::stri
     to = deserializedNeurons[toId];
 }
 Synapse* Synapse::clone(std::unordered_map<std::string, Neuron*> &clonedNeurons) {
-    Synapse* clone = new Synapse(clonedNeurons.at(from->getId()), clonedNeurons.at(to->getId()));
+    Synapse* clone = new Synapse();
+    clone->from = clonedNeurons.at(from->getId());
+    clone->to = clonedNeurons.at(to->getId());
     clone->weight = weight;
     clone->enabled = enabled;
     return clone;
