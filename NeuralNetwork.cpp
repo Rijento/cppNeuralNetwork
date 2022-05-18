@@ -19,7 +19,10 @@ float randWeight() {
 
 // Class funcitons
 
-NeuralNetwork::NeuralNetwork() {}
+NeuralNetwork::NeuralNetwork() {
+    inputLayer = NULL;
+    outputLayer = NULL;
+}
 
 NeuralNetwork::NeuralNetwork(int inputsIn, int outputsIn){
     inputLayer = new Layer(0);
@@ -150,8 +153,12 @@ void NeuralNetwork::deserialize(std::string fileName) { // loads the network fro
     std::unordered_map<std::string, Neuron*> deserializedNeurons;
 
     // Clear starting layers
-    delete inputLayer;
-    delete outputLayer;
+    if (inputLayer != NULL) {
+        delete inputLayer;
+    }
+    if (outputLayer!= NULL) {
+        delete outputLayer;
+    }
 
     inputLayer = new Layer(0);
     outputLayer = new Layer(-1);
@@ -170,7 +177,9 @@ void NeuralNetwork::deserialize(std::string fileName) { // loads the network fro
     outputLayer->deserialize(olayVal, deserializedNeurons);
 
     // Desearialize hidden layers
-    hiddenLayers.clear();
+    for(Layer* layer : hiddenLayers) {
+        delete layer;
+    }
 
     for(rapidjson::SizeType i = 0; i < hlaysVal.Size(); i++) {
         Layer* layer = new Layer();
