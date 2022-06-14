@@ -19,7 +19,6 @@ protected:
     Layer* inputLayer;
     Layer* outputLayer;
     std::list<Layer*> hiddenLayers;
-    void randomizeWeights(Synapse* synapse);
     // Neuron* biasNeuron;
     Layer* getRandomLayer();
 private:

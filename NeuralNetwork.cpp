@@ -261,24 +261,20 @@ std::vector<float> NeuralNetwork::feedForward(std::vector<float> inputData) {
 }
 
 void NeuralNetwork::randomizeWeights() {
-    bool recursionFlag = true;
+    // Input Layer
     for (NeuronIterator it = inputLayer->getNeurons()->begin(); it != inputLayer->getNeurons()->end(); it++) {
         for (SynapseIterator sit = (*it).second->getSynapses()->begin(); sit != (*it).second->getSynapses()->end(); ++sit) {
-            if (recursionFlag) {
-                randomizeWeights(*sit);
-            } else {
+            (*sit)->setWeight(randWeight());
+        }
+    }
+
+    // Hidden Layers
+    for (LayerIterator lit = hiddenLayers.begin(); lit != hiddenLayers.end(); lit++) {
+        for (NeuronIterator nit = (*lit)->getNeurons()->begin(); nit != (*lit)->getNeurons()->end(); nit++) {
+            for (SynapseIterator sit = (*nit).second->getSynapses()->begin(); sit != (*nit).second->getSynapses()->end(); ++sit) {
                 (*sit)->setWeight(randWeight());
             }
         }
-        recursionFlag = false; // No need to go into depth after the first neron is done recursing
-    }
-}
-
-
-void NeuralNetwork::randomizeWeights(Synapse* synapse) {
-    synapse->setWeight(randWeight());
-    for (SynapseIterator it = synapse->getTo()->getSynapses()->begin(); it != synapse->getTo()->getSynapses()->end(); it++) {
-        randomizeWeights(*it);
     }
 }
 
