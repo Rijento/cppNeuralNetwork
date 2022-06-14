@@ -19,6 +19,7 @@ protected:
     Layer* inputLayer;
     Layer* outputLayer;
     std::list<Layer*> hiddenLayers;
+    void randomizeWeights(Synapse* synapse);
     // Neuron* biasNeuron;
     Layer* getRandomLayer();
 private:
@@ -37,6 +38,7 @@ public:
     void insertLayer(int index);
     void addNewNode(int depth); // adds a new node to the hidden layer
     std::vector<float> feedForward(std::vector<float> inputData);
+    void randomizeWeights();
     void createInitialConnections();
     ~NeuralNetwork();
 };
