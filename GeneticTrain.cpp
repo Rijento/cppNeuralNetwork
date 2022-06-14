@@ -20,17 +20,17 @@ NeuralNetwork* GeneticTrain<T>::procreate(NeuralNetwork* dominant, NeuralNetwork
     NeuralNetwork* ofspring = dominant->clone();
     uint8_t neuronCount = ofspring->getHiddenNeuronCount() + ofspring->getInputLayer()->getNeurons()->size();
     int j = 0;
-    for (int i = 0; i < ofspring->getBrain()->getHiddenLayers()->size() + 1; i++) {
+    for (int i = 0; i < ofspring->getHiddenLayers()->size() + 1; i++) {
         NeuronIterator it;
         NeuronIterator endIt;
         Layer* slay; // Can't rely on second iterator
         if (i == 0) { // input layer
-            it = ofspring->getBrain()->getInputLayer()->getNeurons()->begin();
-            slay = submissive->getBrain()->getInputLayer();
-            endIt = ofspring->getBrain()->getInputLayer()->getNeurons()->end();
+            it = ofspring->getInputLayer()->getNeurons()->begin();
+            slay = submissive->getInputLayer();
+            endIt = ofspring->getInputLayer()->getNeurons()->end();
         } else {
-            LayerIterator lit = ofspring->getBrain()->getHiddenLayers()->begin();
-            LayerIterator slit = submissive->getBrain()->getHiddenLayers()->begin();
+            LayerIterator lit = ofspring->getHiddenLayers()->begin();
+            LayerIterator slit = submissive->getHiddenLayers()->begin();
             assert((*lit)->getLayerDepth() == (*slit)->getLayerDepth());
             std::advance(lit, i-1);
             std::advance(slit, i-1);
